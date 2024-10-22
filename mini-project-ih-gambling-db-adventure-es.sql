@@ -150,12 +150,17 @@ jugador y la suma de sus apuestas para ambos productos.*/
 
 SELECT 
     AccountNo,
-    SUM(Bet_Amt) AS Total_Apostado,
-    Product
+    SUM(Bet_Amt) AS Total_Apostado
 FROM gambling.betting
-WHERE Product = 'Sportsbook' AND Bet_Amt > 0
-GROUP BY AccountNo,
-	Product
+WHERE Bet_Amt > 0
+    AND AccountNo IN (
+        SELECT AccountNo
+        FROM gambling.betting
+        GROUP BY AccountNo
+        HAVING COUNT(DISTINCT Product) = 1
+           AND MIN(Product) = 'Sportsbook'
+    )
+GROUP BY AccountNo
 ORDER BY Total_Apostado;
 
 /*Pregunta 10: La última pregunta requiere que calculemos y determinemos el producto favorito de un jugador. Esto se 
